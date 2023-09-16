@@ -48,12 +48,41 @@ TreeMap * createTreeMap(int (*lower_than) (void* key1, void* key2)) {
     return map;
 }
 
-void insertTreeMap(TreeMap * tree, void* key, void * value) {
 
+void insertTreeMap(TreeMap * tree, void* key, void * value) {
+    if (searchTreeMap(tree, key) != NULL) {
+        return;
+    }
+
+    TreeNode* newNode = createTreeNode(key, value);
+    if (newNode == NULL) {
+        return;
+    }
+
+    TreeNode* parent = NULL;
+    TreeNode* current = tree->root;
+
+    while (current != NULL) {
+        parent = current;
+        if (tree->lower_than(key, current->pair->key) < 0){
+            current = current->left;
+        } 
+        else{
+            current = current->right;
+        }
+    }
+
+    newNode->parent = parent;
+    if (parent == NULL) {
+        tree->root = newNode; // Árbol vacío
+    } else if (tree->lower_than(key, parent->pair->key) < 0) {
+        parent->left = newNode;
+    } else {
+        parent->right = newNode;
+    }
 }
 
 TreeNode * minimum(TreeNode * x){
-
     return NULL;
 }
 
@@ -71,11 +100,20 @@ void eraseTreeMap(TreeMap * tree, void* key){
 
 }
 
-
-
-
 Pair * searchTreeMap(TreeMap * tree, void* key) {
-    return NULL;
+    TreeNode* current = tree->root;
+    while (current != NULL) {
+        int cmp = tree->lower_than(key, current->pair->key);
+        if (cmp == 0) {
+            tree->current = current; // Actualiza el puntero current
+            return current->pair;
+        } else if (cmp < 0) {
+            current = current->left;
+        } else {
+            current = current->right;
+        }
+    }
+    return NULL; // Clave no encontrada
 }
 
 
